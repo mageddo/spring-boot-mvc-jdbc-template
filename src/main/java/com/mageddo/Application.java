@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.mageddo.entity.CustomerEntity;
 import org.h2.tools.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +17,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * Created by lvasek on 17/04/15.
  */
 @SpringBootApplication
 @EnableAutoConfiguration
+@EnableTransactionManagement
 @ComponentScan
 @Configuration
 public class Application {
@@ -48,10 +49,9 @@ public class Application {
     }
 
     @PostConstruct
-    public void run() throws Exception {
+    public void sqlFactory() throws Exception {
 
-        LOGGER.info("Creating tables");
-
+        LOGGER.info("status=begin");
         jdbcTemplate.execute("DROP TABLE customers IF EXISTS");
         jdbcTemplate.execute("CREATE TABLE customers(" +
             "id SERIAL, first_name VARCHAR(255), last_name VARCHAR(255))");
@@ -66,12 +66,8 @@ public class Application {
 
         // Uses JdbcTemplate's batchUpdate operation to bulk load data
         jdbcTemplate.batchUpdate("INSERT INTO customers(first_name, last_name) VALUES (?,?)", splitUpNames);
+        LOGGER.info("status=success");
 
-        LOGGER.info("Querying for customer records where first_name = 'Josh':");
-        jdbcTemplate.query(
-            "SELECT id, first_name, last_name FROM customers WHERE first_name = ?", new Object[] { "Josh" },
-            (rs, rowNum) -> new CustomerEntity(rs.getLong("id"), rs.getString("first_name"), rs.getString("last_name"))
-        ).forEach(customer -> LOGGER.info("customer={}", customer.toString()));
     }
 
 }
