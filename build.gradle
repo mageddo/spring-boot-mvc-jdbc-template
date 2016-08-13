@@ -11,7 +11,6 @@ buildscript {
 
 repositories {
     mavenCentral()
-    maven {url = 'http://repository.primefaces.org'}
 }
 
 apply plugin: 'java'
@@ -40,24 +39,15 @@ allprojects{
 
 dependencies {
 
+    compile group: 'javax.inject', name: 'javax.inject', version: '1'
+
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '1.4.0.RELEASE'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: '1.4.0.RELEASE'
-    compile group: "org.apache.tomcat.embed", name: "tomcat-embed-jasper"
-    compile group: 'jstl', name: 'jstl', version: '1.2'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version: '1.4.0.RELEASE'
 
-    // JSF
-    compile group: 'com.sun.faces', name: 'jsf-api', version: '2.2.12'
-    compile group: 'com.sun.faces', name: 'jsf-impl', version: '2.2.12'
 
-    compile group: 'org.primefaces', name: 'primefaces', version: '6.0'
-//    compile group: 'org.primefaces.themes', name: 'afterdark', version: '1.0.8'
-    compile group: 'org.primefaces.themes', name: 'bootstrap', version: '1.0.8'
-    compile group: 'net.bootsfaces', name: 'bootsfaces', version: '0.7.0'
-
-    // commons
-    compile group: 'commons-io', name: 'commons-io', version: '2.4'
-    compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.1'
-
+    compile group: 'org.hsqldb', name: 'hsqldb', version: '2.2.8'
+//    compile group: 'com.h2database', name: 'h2', version: '1.4.192'
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.4.0.RELEASE'
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.easymock', name: 'easymock', version: '3.4'

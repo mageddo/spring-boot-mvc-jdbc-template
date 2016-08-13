@@ -1,4 +1,4 @@
-package com.github.springprimefaces.service;
+package com.mageddo.service;
 
 import org.springframework.stereotype.Service;
 
