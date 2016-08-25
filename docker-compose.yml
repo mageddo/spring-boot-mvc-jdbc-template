@@ -1,0 +1,9 @@
+spring-boot-mvc-jdbc-template:
+  image: java:openjdk-8u91
+  hostname: "spring-boot-mvc-jdbc-template.mageddo.dev"
+  volumes:
+    - $PWD/build:/opt/spring
+  working_dir: /opt/spring/libs
+  command: java -Xmx270m -Xss256k -jar spring-boot-mvc-jdbc-template.war
+  mem_limit: 300m
+  memswap_limit: 0
