@@ -1,5 +1,5 @@
 spring-boot-mvc-jdbc-template:
-  image: java:openjdk-8u91
+  image: openjdk:9-jre
   hostname: "spring-boot-mvc-jdbc-template.mageddo.dev"
   volumes:
     - $PWD/build:/opt/spring
