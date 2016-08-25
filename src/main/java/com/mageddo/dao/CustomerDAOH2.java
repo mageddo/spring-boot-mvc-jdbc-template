@@ -1,6 +1,6 @@
 package com.mageddo.dao;
 
-import javax.inject.Inject;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 import com.mageddo.entity.CustomerEntity;
@@ -18,7 +18,7 @@ public class CustomerDAOH2 implements CustomerDAO {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CustomerDAOH2.class);
 
-	@Inject
+	@PersistenceContext
 	JdbcTemplate jdbcTemplate;
 
 	@Override
