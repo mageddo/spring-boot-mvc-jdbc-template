@@ -10,4 +10,6 @@ import com.mageddo.entity.CustomerEntity;
 public interface CustomerDAO {
 
 	List<CustomerEntity> findByName(String name);
+	void create(CustomerEntity customerEntity);
+	void update(CustomerEntity customerEntity);
 }

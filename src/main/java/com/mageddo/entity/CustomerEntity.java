@@ -8,6 +8,9 @@ public class CustomerEntity {
 	private long id;
 	private String firstName, lastName;
 
+	public CustomerEntity() {
+	}
+
 	public CustomerEntity(long id, String first_name, String last_name) {
 		this.id = id; this.firstName = first_name;
 		this.lastName = last_name;

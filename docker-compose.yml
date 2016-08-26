@@ -4,6 +4,6 @@ spring-boot-mvc-jdbc-template:
   volumes:
     - $PWD/build:/opt/spring
   working_dir: /opt/spring/libs
-  command: java -Xmx270m -Xss256k -jar spring-boot-mvc-jdbc-template.war
-  mem_limit: 300m
+  command: java -Xmx45m -Xss256k -jar spring-boot-mvc-jdbc-template.war
+  mem_limit: 50m
   memswap_limit: 0

@@ -1,11 +1,13 @@
 package com.mageddo.service;
 
-import javax.inject.Inject;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import com.mageddo.dao.CustomerDAO;
 import com.mageddo.entity.CustomerEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -21,4 +23,10 @@ public class CustomerService {
 	public List<CustomerEntity> findByName(String name){
 		return this.customerDAO.findByName(name);
 	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void createCustomer(CustomerEntity customer) {
+		customerDAO.create(customer);
+	}
+
 }

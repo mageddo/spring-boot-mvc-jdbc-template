@@ -1,7 +1,8 @@
 package com.mageddo.dao;
 
-import javax.persistence.PersistenceContext;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import com.mageddo.entity.CustomerEntity;
 import org.slf4j.Logger;
@@ -18,7 +19,7 @@ public class CustomerDAOH2 implements CustomerDAO {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CustomerDAOH2.class);
 
-	@PersistenceContext
+	@Inject
 	JdbcTemplate jdbcTemplate;
 
 	@Override
@@ -30,5 +31,19 @@ public class CustomerDAOH2 implements CustomerDAO {
 		);
 		LOGGER.info("status=success");
 		return customerEntities;
+	}
+
+	@Override
+	public void create(CustomerEntity customerEntity) {
+		jdbcTemplate.update("INSERT INTO customers (first_name, last_name) VALUES (?, ?)", customerEntity.getFirstName(),
+				customerEntity.getLastName());
+
+
+	}
+
+	@Override
+	public void update(CustomerEntity customerEntity) {
+		jdbcTemplate.update("UPDATE customers SET first_name=?, last_name=? WHERE id = ?",
+				customerEntity.getFirstName(), customerEntity.getLastName(), customerEntity.getId());
 	}
 }
