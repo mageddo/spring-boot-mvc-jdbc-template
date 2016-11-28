@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
@@ -29,10 +30,18 @@ public class ManyCustomersServiceTest {
     @Inject
     CustomerService customerService;
 
+    @Inject
+    private DatabaseConfigurationService databaseConfigurationService;
+
+    @PostConstruct
+    public void construct(){
+        databaseConfigurationService.resetDatabase();
+    }
+
     @Test
     public void createCustomers() throws Exception {
-        manyCustomersService.createCustomers(Arrays.asList(new CustomerEntity(1, "Elvis", "Souza"),
-                new CustomerEntity(2, "Bruna", "Souza")));
+        manyCustomersService.createCustomers(Arrays.asList(new CustomerEntity(999, "Elvis", "Souza"),
+                new CustomerEntity(1000, "Bruna", "Souza")));
 
         final List<CustomerEntity> users = customerService.findByName("Souza");
 
