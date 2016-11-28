@@ -1,13 +1,5 @@
 package com.mageddo;
 
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
 import com.mageddo.configuration.PropertyUtils;
 import org.h2.tools.Server;
 import org.slf4j.Logger;
@@ -15,6 +7,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by elvis on 25/08/16.
@@ -57,7 +56,7 @@ public class H2DatabaseConfiguration {
 		LOGGER.info("status=begin");
 		jdbcTemplate.execute("DROP TABLE customers IF EXISTS");
 		jdbcTemplate.execute("CREATE TABLE customers(" +
-				"id SERIAL, first_name VARCHAR(255), last_name VARCHAR(255))");
+				"id SERIAL, first_name VARCHAR(255) UNIQUE, last_name VARCHAR(255))");
 
 		// Split up the array of whole names into an array of first/last names
 		List<Object[]> splitUpNames = Arrays.asList("John Woo", "Jeff Dean", "Josh Bloch", "Josh Long").stream()

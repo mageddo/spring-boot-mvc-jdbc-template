@@ -1,13 +1,13 @@
 package com.mageddo.service;
 
 import com.mageddo.entity.CustomerEntity;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
@@ -23,7 +23,6 @@ import java.util.List;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ManyCustomersServiceTest {
 
-
     @Inject
     ManyCustomersService manyCustomersService;
 
@@ -33,15 +32,28 @@ public class ManyCustomersServiceTest {
     @Inject
     private DatabaseConfigurationService databaseConfigurationService;
 
-    @PostConstruct
-    public void construct(){
+    @After
+    public void construct() {
         databaseConfigurationService.resetDatabase();
     }
 
     @Test
     public void createCustomers() throws Exception {
-        manyCustomersService.createCustomers(Arrays.asList(new CustomerEntity(999, "Elvis", "Souza"),
-                new CustomerEntity(1000, "Bruna", "Souza")));
+        manyCustomersService.createCustomers(Arrays.asList(new CustomerEntity("Elvis", "Souza"),
+                new CustomerEntity("Bruna", "Souza")));
+
+        final List<CustomerEntity> users = customerService.findByName("Souza");
+
+        Assert.assertNotNull(users);
+        Assert.assertEquals(2, users.size());
+        Assert.assertEquals("Elvis", users.get(0).getFirstName());
+        Assert.assertEquals("Bruna", users.get(1).getFirstName());
+    }
+
+    @Test
+    public void createCustomersWithoutFail() throws Exception {
+        manyCustomersService.createCustomers(Arrays.asList(new CustomerEntity( "Elvis", "Souza"),
+                new CustomerEntity(999, "Bruna", "Souza")));
 
         final List<CustomerEntity> users = customerService.findByName("Souza");
 

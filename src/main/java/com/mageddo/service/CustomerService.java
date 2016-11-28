@@ -1,14 +1,13 @@
 package com.mageddo.service;
 
-import java.util.List;
-
-import javax.inject.Inject;
-
 import com.mageddo.dao.CustomerDAO;
 import com.mageddo.entity.CustomerEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.util.List;
 
 /**
  * Created by elvis on 13/08/16.
@@ -30,7 +29,7 @@ public class CustomerService {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	public void createCustomerWithoutException(CustomerEntity customer) {
+	public void createCustomerWithoutFail(CustomerEntity customer) {
 		customerDAO.create(customer);
 	}
 

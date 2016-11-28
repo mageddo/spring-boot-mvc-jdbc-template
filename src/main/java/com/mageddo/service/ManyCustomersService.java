@@ -1,12 +1,11 @@
 package com.mageddo.service;
 
-import java.util.List;
-
-import javax.inject.Inject;
-
 import com.mageddo.entity.CustomerEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.util.List;
 
 /**
  * @author elvis
@@ -24,6 +23,13 @@ public class ManyCustomersService {
     public void createCustomers(List<CustomerEntity> customerEntities){
         for(CustomerEntity customerEntity: customerEntities){
             customerService.createCustomer(customerEntity);
+        }
+    }
+
+    @Transactional
+    public void createCustomersWithoutFail(List<CustomerEntity> customerEntities){
+        for(CustomerEntity customerEntity: customerEntities){
+            customerService.createCustomerWithoutFail(customerEntity);
         }
     }
 }

@@ -11,6 +11,10 @@ public class CustomerEntity {
 	public CustomerEntity() {
 	}
 
+	public CustomerEntity(String first_name, String last_name) {
+		this(-1L, first_name, last_name);
+	}
+
 	public CustomerEntity(long id, String first_name, String last_name) {
 		this.id = id; this.firstName = first_name;
 		this.lastName = last_name;
