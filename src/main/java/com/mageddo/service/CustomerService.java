@@ -29,4 +29,11 @@ public class CustomerService {
 		customerDAO.create(customer);
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void createCustomerWithoutException(CustomerEntity customer) {
+		customerDAO.create(customer);
+	}
+
+
+
 }
