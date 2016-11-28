@@ -48,7 +48,7 @@ public class ManyCustomersServiceTest {
         Assert.assertNotNull(users);
         Assert.assertEquals(2, users.size());
         Assert.assertEquals("Elvis", users.get(0).getFirstName());
-        Assert.assertEquals("Bruna", users.get(0).getFirstName());
+        Assert.assertEquals("Bruna", users.get(1).getFirstName());
     }
 
 }
