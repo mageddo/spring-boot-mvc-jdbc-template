@@ -59,7 +59,7 @@ public class H2DatabaseConfiguration {
 				"id SERIAL, first_name VARCHAR(255) UNIQUE, last_name VARCHAR(255))");
 
 		// Split up the array of whole names into an array of first/last names
-		List<Object[]> splitUpNames = Arrays.asList("John Woo", "Jeff Dean", "Josh Bloch", "Josh Long").stream()
+		List<Object[]> splitUpNames = Arrays.asList("John Woo", "Jeff Dean", "Josh Bloch", "Mark Long").stream()
 				.map(name -> name.split(" "))
 				.collect(Collectors.toList());
 

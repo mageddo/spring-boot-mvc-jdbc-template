@@ -52,14 +52,16 @@ public class ManyCustomersServiceTest {
 
     @Test
     public void createCustomersWithoutFail() throws Exception {
-        manyCustomersService.createCustomers(Arrays.asList(new CustomerEntity( "Elvis", "Souza"),
-                new CustomerEntity(999, "Bruna", "Souza")));
+
+        manyCustomersService.createCustomersWithoutFail(Arrays.asList(new CustomerEntity("Elvis", "Souza"),
+                new CustomerEntity("Elvis", "Freitas"), new CustomerEntity("Bruna", "Souza")));
 
         final List<CustomerEntity> users = customerService.findByName("Souza");
 
         Assert.assertNotNull(users);
         Assert.assertEquals(2, users.size());
         Assert.assertEquals("Elvis", users.get(0).getFirstName());
+        Assert.assertEquals("Souza", users.get(0).getLastName());
         Assert.assertEquals("Bruna", users.get(1).getFirstName());
     }
 

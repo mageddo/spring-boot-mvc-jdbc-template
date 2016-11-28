@@ -2,6 +2,7 @@ package com.mageddo.service;
 
 import com.mageddo.dao.CustomerDAO;
 import com.mageddo.entity.CustomerEntity;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +29,7 @@ public class CustomerService {
 		customerDAO.create(customer);
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.REQUIRED, noRollbackFor = DuplicateKeyException.class)
 	public void createCustomerWithoutFail(CustomerEntity customer) {
 		customerDAO.create(customer);
 	}
