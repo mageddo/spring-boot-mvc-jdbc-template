@@ -1,6 +1,9 @@
 package com.mageddo.service;
 
+import com.mageddo.entity.CustomerEntity;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,8 +28,17 @@ public class DatabaseConfigurationServiceTest {
 	@Inject
 	private DatabaseConfigurationService databaseConfigurationService;
 
+	@Before
+	@After
+	public void before(){
+		databaseConfigurationService.resetDatabase();
+	}
+
 	@Test
 	public void resetDatabase() throws Exception {
+
+		customerService.createCustomer(new CustomerEntity("Jeff", "Mark"));
+
 		Assert.assertEquals("Jeff", customerService.findByName("Jeff").get(0).getFirstName());
 		databaseConfigurationService.resetDatabase();
 		Assert.assertEquals(0, customerService.findByName("Jeff").size());
