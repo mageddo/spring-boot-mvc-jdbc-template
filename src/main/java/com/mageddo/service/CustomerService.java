@@ -35,5 +35,8 @@ public class CustomerService {
 	}
 
 
-
+	@Transactional(propagation = Propagation.MANDATORY)
+	public void createCustomerWithoutFailMandatory(CustomerEntity customer) {
+		createCustomerWithoutFail(customer);
+	}
 }
