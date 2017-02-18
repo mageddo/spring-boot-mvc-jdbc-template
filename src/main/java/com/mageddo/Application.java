@@ -5,12 +5,14 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * Created by lvasek on 17/04/15.
  */
 @SpringBootApplication
+@EnableAspectJAutoProxy
 @EnableAutoConfiguration
 @EnableTransactionManagement
 @ComponentScan

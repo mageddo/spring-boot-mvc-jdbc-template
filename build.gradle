@@ -39,7 +39,7 @@ sourceSets {
 }
 
 ext {
-    springBootVersion = '1.4.0.RELEASE'
+    springBootVersion = '1.5.1.RELEASE'
 }
 
 allprojects{
@@ -54,6 +54,7 @@ dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBootVersion
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: springBootVersion
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version: springBootVersion
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: springBootVersion
 
 //    compile group: 'org.hsqldb', name: 'hsqldb', version: '2.2.8'
 //    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.34'
