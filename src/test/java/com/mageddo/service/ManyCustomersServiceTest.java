@@ -105,4 +105,21 @@ public class ManyCustomersServiceTest {
 
 		}
 
+
+	@Test
+	public void updateCustomerBalanceConcurrencyProblem() throws Exception {
+
+		manyCustomersService.createCustomersWithoutFailNotTransactionalProxyFix(
+			Arrays.asList(new CustomerEntity("Elvis", "Souza"), new CustomerEntity("Renan", "Martins"),
+				new CustomerEntity("Rick", "Ferreira")
+			)
+		);
+		final List<CustomerEntity> users = customerService.findByName("Ferreira");
+
+		Assert.assertNotNull(users);
+		Assert.assertEquals(1, users.size());
+		Assert.assertEquals("Rick", users.get(0).getFirstName());
+
+	}
+
 }
