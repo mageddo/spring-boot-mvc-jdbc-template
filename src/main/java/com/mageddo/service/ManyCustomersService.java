@@ -6,8 +6,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -28,6 +31,9 @@ public class ManyCustomersService {
 
 	@Inject
 	private CustomerDAO customerDAO;
+
+	@Inject
+	private PlatformTransactionManager txManager;
 
 
 	@Transactional
@@ -62,6 +68,22 @@ public class ManyCustomersService {
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void createCustomerWithoutFailRequiresNew(CustomerEntity customer) {
 		customerService.createCustomerWithoutFailMandatory(customer);
+	}
+
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
+	public void createCustomersWithoutFailNotTransactionalProxyFix(List<CustomerEntity> customerEntities) {
+		for(CustomerEntity customerEntity: customerEntities){
+			try {
+				final TransactionTemplate template = new TransactionTemplate(txManager);
+				template.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+				template.execute(status -> {
+					this.createCustomerWithoutFailRequiresNew(customerEntity);
+					return null;
+				});
+			}catch (final DuplicateKeyException e){
+				LOGGER.warn("status=duplicated, name={}, msg={}", customerEntity.getFirstName(), e.getMessage(), e);
+			}
+		}
 	}
 
 }
