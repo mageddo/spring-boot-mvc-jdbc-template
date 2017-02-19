@@ -35,7 +35,7 @@ public class CustomerService {
 		customerDAO.create(customer);
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED, noRollbackFor = Exception.class)
+	@Transactional(propagation = Propagation.REQUIRED, noRollbackFor = DuplicateKeyException.class)
 	public void createCustomerWithoutFail(CustomerEntity customer) {
 		customerDAO.create(customer);
 	}

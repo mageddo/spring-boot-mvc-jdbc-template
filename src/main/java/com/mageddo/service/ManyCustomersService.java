@@ -45,9 +45,14 @@ public class ManyCustomersService {
 
 	@Transactional
 	public void createCustomersWithoutFail(List<CustomerEntity> customerEntities) {
-		for (CustomerEntity customerEntity : customerEntities) {
+		for(CustomerEntity customerEntity: customerEntities){
 			try {
-				customerService.createCustomerWithoutFail(customerEntity);
+				TransactionTemplate transactionTemplate = new TransactionTemplate(txManager);
+				transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_NESTED);
+				transactionTemplate.execute(ts -> {
+					customerService.createCustomerWithoutFail(customerEntity);
+					return null;
+				});
 			} catch (final DuplicateKeyException e) {
 				LOGGER.warn("status=duplicated, name={}, msg={}", customerEntity.getFirstName(), e.getMessage(), e);
 			}
