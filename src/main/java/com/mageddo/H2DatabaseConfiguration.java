@@ -1,11 +1,11 @@
 package com.mageddo;
 
-import com.mageddo.configuration.PropertyUtils;
 import org.h2.tools.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -18,40 +18,27 @@ import java.util.stream.Collectors;
 /**
  * Created by elvis on 25/08/16.
  */
+@Profile("H2")
 @Component
 public class H2DatabaseConfiguration {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(H2DatabaseConfiguration.class);
 
 	@Autowired
-	JdbcTemplate jdbcTemplate;
-
-	@Autowired
-	PropertyUtils propertyUtils;
+	private JdbcTemplate jdbcTemplate;
 
 	@Bean(destroyMethod = "stop", initMethod = "start")
 	public Server h2TCPServer() throws SQLException {
-		if(propertyUtils.isH2DatabaseActive()){
-			return Server.createTcpServer("-tcp","-tcpAllowOthers","-tcpPort","9491");
-		}
-		return null;
+		return Server.createTcpServer("-tcp","-tcpAllowOthers","-tcpPort","9491");
 	}
 
 	@Bean(destroyMethod = "stop", initMethod = "start")
 	public Server h2WebServer() throws SQLException {
-		if(propertyUtils.isH2DatabaseActive()){
 			return Server.createWebServer("-web","-webAllowOthers","-webPort","9492");
-		}
-		return null;
 	}
 
 	@PostConstruct
 	public void sqlFactory() throws Exception {
-
-		if(!propertyUtils.isH2DatabaseActive()){
-			LOGGER.info("status=h2database inactive");
-			return ;
-		}
 
 		LOGGER.info("status=begin");
 		jdbcTemplate.execute("DROP TABLE customers IF EXISTS");

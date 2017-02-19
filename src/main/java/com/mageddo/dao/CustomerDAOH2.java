@@ -4,6 +4,7 @@ import com.mageddo.entity.CustomerEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -17,6 +18,7 @@ import java.util.List;
  */
 
 @Repository
+@Profile("H2")
 public class CustomerDAOH2 implements CustomerDAO {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CustomerDAOH2.class);
