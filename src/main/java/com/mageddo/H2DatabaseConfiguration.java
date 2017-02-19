@@ -4,12 +4,12 @@ import com.mageddo.configuration.PropertyUtils;
 import org.h2.tools.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -23,10 +23,10 @@ public class H2DatabaseConfiguration {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(H2DatabaseConfiguration.class);
 
-	@Inject
+	@Autowired
 	JdbcTemplate jdbcTemplate;
 
-	@Inject
+	@Autowired
 	PropertyUtils propertyUtils;
 
 	@Bean(destroyMethod = "stop", initMethod = "start")

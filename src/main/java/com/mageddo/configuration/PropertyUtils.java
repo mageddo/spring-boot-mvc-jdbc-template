@@ -2,8 +2,7 @@ package com.mageddo.configuration;
 
 import static com.mageddo.configuration.SystemProperties.H2DATABASE_ACTIVE;
 
-import javax.inject.Inject;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class PropertyUtils {
 
-	@Inject
+	@Autowired
 	private Environment environment;
 
 	public boolean isH2DatabaseActive(){

@@ -1,5 +1,7 @@
 package com.mageddo.entity;
 
+import org.springframework.jdbc.core.RowMapper;
+
 /**
  * Created by elvis on 13/08/16.
  */
@@ -66,5 +68,12 @@ public class CustomerEntity {
 				", firstName='" + firstName + '\'' +
 				", lastName='" + lastName + '\'' +
 				'}';
+	}
+
+	public static RowMapper<CustomerEntity> mapper() {
+		return (rs, rowNum) -> new CustomerEntity(
+			rs.getLong("id"), rs.getString("first_name"),
+			rs.getString("last_name"), rs.getDouble("balance")
+		);
 	}
 }

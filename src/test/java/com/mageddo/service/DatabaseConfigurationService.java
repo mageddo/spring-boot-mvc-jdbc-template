@@ -1,9 +1,9 @@
 package com.mageddo.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import javax.inject.Inject;
 import java.util.List;
 
 /**
@@ -15,7 +15,7 @@ import java.util.List;
 @Repository
 public class DatabaseConfigurationService {
 
-	@Inject
+	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
 	public void resetDatabase(){

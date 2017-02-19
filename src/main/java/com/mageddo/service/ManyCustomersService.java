@@ -4,6 +4,7 @@ import com.mageddo.dao.CustomerDAO;
 import com.mageddo.entity.CustomerEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -12,7 +13,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.inject.Inject;
 import java.util.List;
 
 /**
@@ -26,13 +26,13 @@ public class ManyCustomersService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ManyCustomersService.class);
 
-	@Inject
+	@Autowired
 	private CustomerService customerService;
 
-	@Inject
+	@Autowired
 	private CustomerDAO customerDAO;
 
-	@Inject
+	@Autowired
 	private PlatformTransactionManager txManager;
 
 

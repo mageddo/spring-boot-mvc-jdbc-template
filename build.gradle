@@ -50,7 +50,6 @@ allprojects{
 
 dependencies {
 
-    compile group: 'javax.inject', name: 'javax.inject', version: '1'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBootVersion
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: springBootVersion
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version: springBootVersion
@@ -58,7 +57,7 @@ dependencies {
 
 //    compile group: 'org.hsqldb', name: 'hsqldb', version: '2.2.8'
 //    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.34'
-    compile group: 'com.h2database', name: 'h2', version: '1.4.192'
+    compile group: 'com.h2database', name: 'h2', version: '1.4.193'
 
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
     testCompile group: 'junit', name: 'junit', version: '4.12'
