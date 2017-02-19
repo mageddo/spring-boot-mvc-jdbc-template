@@ -30,7 +30,7 @@ public class CustomerDAOPg implements CustomerDAO {
 	public List<CustomerEntity> findByName(String name) {
 		LOGGER.info("status=begin,name={}",  name);
 		final List<CustomerEntity> customerEntities = jdbcTemplate.query(
-			"SELECT id, first_name, last_name FROM customers WHERE CONCAT(first_name, ' ', last_name) LIKE ? ORDER BY id ASC",
+			"SELECT id, first_name, last_name, balance FROM customers WHERE CONCAT(first_name, ' ', last_name) LIKE ? ORDER BY id ASC",
 			new Object[]{"%" + name + "%"}, CustomerEntity.mapper()
 		);
 		LOGGER.info("status=success");

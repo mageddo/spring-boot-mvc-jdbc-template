@@ -22,16 +22,15 @@ public class DatabaseConfigurationDAOPg implements DatabaseConfigurationDAO {
 
 	@Override
 	public void resetDatabase(){
-		jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY=0");
-		final List<String> query = jdbcTemplate.query("SHOW TABLES", (rs, rowNum) -> {
+		final List<String> query = jdbcTemplate.query(
+			" SELECT tablename FROM pg_tables WHERE tableowner = 'root' AND schemaname = 'public';",
+			(rs, rowNum) -> {
 
-			final String tableName = rs.getString("TABLE_NAME");
-			jdbcTemplate.execute("TRUNCATE TABLE " + tableName);
-			return tableName;
+				final String tableName = rs.getString("tablename");
+				jdbcTemplate.execute(String.format("TRUNCATE TABLE %s CASCADE", tableName));
+				return tableName;
 
-		});
-
-		jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY=1");
+			});
 	}
 
 }

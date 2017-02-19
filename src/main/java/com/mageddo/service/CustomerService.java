@@ -5,6 +5,7 @@ import com.mageddo.entity.CustomerEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -34,7 +35,7 @@ public class CustomerService {
 		customerDAO.create(customer);
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED, noRollbackFor = DuplicateKeyException.class)
+	@Transactional(propagation = Propagation.REQUIRED, noRollbackFor = Exception.class)
 	public void createCustomerWithoutFail(CustomerEntity customer) {
 		customerDAO.create(customer);
 	}

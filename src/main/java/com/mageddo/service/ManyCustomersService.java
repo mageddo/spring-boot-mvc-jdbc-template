@@ -16,11 +16,11 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.util.List;
 
 /**
-* @author elvis
-* @version $Revision: $<br/>
-*          $Id: $
-* @since 8/26/16 12:18 PM
-*/
+ * @author elvis
+ * @version $Revision: $<br/>
+ *          $Id: $
+ * @since 8/26/16 12:18 PM
+ */
 @Service
 public class ManyCustomersService {
 
@@ -37,29 +37,29 @@ public class ManyCustomersService {
 
 
 	@Transactional
-	public void createCustomers(List<CustomerEntity> customerEntities){
-			for(CustomerEntity customerEntity: customerEntities){
-					customerService.createCustomer(customerEntity);
-			}
+	public void createCustomers(List<CustomerEntity> customerEntities) {
+		for (CustomerEntity customerEntity : customerEntities) {
+			customerService.createCustomer(customerEntity);
+		}
 	}
 
 	@Transactional
-	public void createCustomersWithoutFail(List<CustomerEntity> customerEntities){
-			for(CustomerEntity customerEntity: customerEntities){
-					try {
-							customerService.createCustomerWithoutFail(customerEntity);
-					}catch (final DuplicateKeyException e){
-							LOGGER.warn("status=duplicated, name={}, msg={}", customerEntity.getFirstName(), e.getMessage(), e);
-					}
+	public void createCustomersWithoutFail(List<CustomerEntity> customerEntities) {
+		for (CustomerEntity customerEntity : customerEntities) {
+			try {
+				customerService.createCustomerWithoutFail(customerEntity);
+			} catch (final DuplicateKeyException e) {
+				LOGGER.warn("status=duplicated, name={}, msg={}", customerEntity.getFirstName(), e.getMessage(), e);
 			}
+		}
 	}
 
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public void createCustomersWithoutFailNotTransactional(List<CustomerEntity> customerEntities) {
-		for(CustomerEntity customerEntity: customerEntities){
+		for (CustomerEntity customerEntity : customerEntities) {
 			try {
 				this.createCustomerWithoutFailRequiresNew(customerEntity);
-			}catch (final DuplicateKeyException e){
+			} catch (final DuplicateKeyException e) {
 				LOGGER.warn("status=duplicated, name={}, msg={}", customerEntity.getFirstName(), e.getMessage(), e);
 			}
 		}
@@ -72,7 +72,7 @@ public class ManyCustomersService {
 
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public void createCustomersWithoutFailNotTransactionalProxyFix(List<CustomerEntity> customerEntities) {
-		for(CustomerEntity customerEntity: customerEntities){
+		for (CustomerEntity customerEntity : customerEntities) {
 			try {
 				final TransactionTemplate template = new TransactionTemplate(txManager);
 				template.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
@@ -80,7 +80,7 @@ public class ManyCustomersService {
 					this.createCustomerWithoutFailRequiresNew(customerEntity);
 					return null;
 				});
-			}catch (final DuplicateKeyException e){
+			} catch (final DuplicateKeyException e) {
 				LOGGER.warn("status=duplicated, name={}, msg={}", customerEntity.getFirstName(), e.getMessage(), e);
 			}
 		}
