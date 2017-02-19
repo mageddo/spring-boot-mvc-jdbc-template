@@ -14,12 +14,21 @@ public interface CustomerDAO {
 	void update(CustomerEntity customerEntity);
 
 	/**
-	 * Movimenta o saldo do cliente
+	 * Movimenta o saldo do cliente acrescentando ou retirando direto na base para resovler problemas maiores de
+	 * concorrencia
 	 * @param customerId
 	 * @param turnoverValue o valor a ser movimentado negativo ou positivo
 	 * @return se movimentou
 	 */
-	boolean updateCustomerBalance(Long customerId, double turnoverValue);
+	boolean doCustomerBalanceTurnover(Long customerId, double turnoverValue);
 
 	CustomerEntity findCustomerById(Long customerId);
+
+	/**
+	 * Apenas seta o valor do novo balanco do usuário
+	 * @param customerId
+	 * @param newBalance
+	 * @return
+	 */
+	boolean updateCustomerBalance(Long customerId, double newBalance);
 }

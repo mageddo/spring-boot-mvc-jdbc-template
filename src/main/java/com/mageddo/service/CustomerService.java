@@ -5,7 +5,6 @@ import com.mageddo.entity.CustomerEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -45,11 +44,29 @@ public class CustomerService {
 		createCustomerWithoutFail(customer);
 	}
 
-	@Transactional(isolation = Isolation.READ_COMMITTED)
-	public boolean updateCustomerBalance(Long customerId, double turnoverValue) {
+	@Transactional
+	public boolean doCustomerBalanceTurnover(Long customerId, double turnoverValue) {
 		LOGGER.info("status=begin, customerId={}", customerId);
-		final boolean ok = customerDAO.updateCustomerBalance(customerId, turnoverValue);
+		final boolean ok = customerDAO.doCustomerBalanceTurnover(customerId, turnoverValue);
 		LOGGER.info("status=success");
+		return ok;
+	}
+
+	@Transactional
+	public boolean updateCustomerBalanceConcurrencyProblem(Long customerId, double turnoverValue) {
+		LOGGER.info("status=begin, customerId={}", customerId);
+		final CustomerEntity customer = customerDAO.findCustomerById(customerId);
+		final double newBalance;
+		if(turnoverValue > 0.0){
+			newBalance = customer.getBalance() - turnoverValue;
+		}else{
+			newBalance = customer.getBalance() + turnoverValue;
+		}
+		if(newBalance < 0.0){
+			throw new IllegalStateException("No balance available");
+		}
+		final boolean ok = customerDAO.updateCustomerBalance(customerId, newBalance);
+		LOGGER.info("status=success, ok={}", ok);
 		return ok;
 	}
 
@@ -57,7 +74,7 @@ public class CustomerService {
 	public boolean updateCustomerBalanceWithSleep(Long customerId, double turnoverValue, int before, int after) throws InterruptedException {
 		LOGGER.info("status=begin, customerId={}", customerId);
 		Thread.sleep(before);
-		final boolean balanceUpdate = this.updateCustomerBalance(customerId, turnoverValue);
+		final boolean balanceUpdate = this.doCustomerBalanceTurnover(customerId, turnoverValue);
 		Thread.sleep(after);
 		LOGGER.info("status=success");
 		return balanceUpdate;
@@ -70,4 +87,5 @@ public class CustomerService {
 		LOGGER.info("status=success, customerId={}, value={}", customerId, customerById.getBalance());
 		return customerById;
 	}
+
 }

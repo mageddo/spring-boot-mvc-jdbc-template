@@ -59,7 +59,7 @@ public class CustomerDAOPg implements CustomerDAO {
 	}
 
 	@Override
-	public boolean updateCustomerBalance(Long customerId, double turnoverValue) {
+	public boolean doCustomerBalanceTurnover(Long customerId, double turnoverValue) {
 		return jdbcTemplate.update(
 			String.format("UPDATE customers SET balance=balance %+.2f WHERE id = ? AND balance %+.2f >= 0.0", turnoverValue, turnoverValue),
 			customerId
@@ -69,5 +69,10 @@ public class CustomerDAOPg implements CustomerDAO {
 	@Override
 	public CustomerEntity findCustomerById(Long customerId) {
 		return jdbcTemplate.queryForObject("SELECT * FROM customers WHERE id = ?", CustomerEntity.mapper(), customerId);
+	}
+
+	@Override
+	public boolean updateCustomerBalance(Long customerId, double newBalance) {
+		return jdbcTemplate.update("UPDATE customers SET balance=? WHERE id = ?", newBalance, customerId) > 0;
 	}
 }

@@ -30,7 +30,7 @@ public class CustomerDAOH2 implements CustomerDAO {
 	public List<CustomerEntity> findByName(String name) {
 		LOGGER.info("status=begin,name={}",  name);
 		final List<CustomerEntity> customerEntities = jdbcTemplate.query(
-			"SELECT id, first_name, last_name FROM customers WHERE CONCAT(first_name, ' ', last_name) LIKE ? ORDER BY id ASC",
+			"SELECT id, first_name, last_name, balance FROM customers WHERE CONCAT(first_name, ' ', last_name) LIKE ? ORDER BY id ASC",
 			new Object[]{"%" + name + "%"}, CustomerEntity.mapper()
 		);
 		LOGGER.info("status=success");
@@ -59,7 +59,7 @@ public class CustomerDAOH2 implements CustomerDAO {
 	}
 
 	@Override
-	public boolean updateCustomerBalance(Long customerId, double turnoverValue) {
+	public boolean doCustomerBalanceTurnover(Long customerId, double turnoverValue) {
 		return jdbcTemplate.update(
 			String.format("UPDATE customers SET balance=balance %+.2f WHERE id = ? AND balance %+.2f >= 0.0", turnoverValue, turnoverValue),
 			customerId
@@ -69,5 +69,10 @@ public class CustomerDAOH2 implements CustomerDAO {
 	@Override
 	public CustomerEntity findCustomerById(Long customerId) {
 		return jdbcTemplate.queryForObject("SELECT * FROM customers WHERE id = ?", CustomerEntity.mapper(), customerId);
+	}
+
+	@Override
+	public boolean updateCustomerBalance(Long customerId, double newBalance) {
+		throw new UnsupportedOperationException();
 	}
 }
