@@ -1,5 +1,6 @@
 package com.mageddo.service;
 
+import com.mageddo.dao.DatabaseConfigurationDAO;
 import com.mageddo.entity.CustomerEntity;
 import org.junit.After;
 import org.junit.Assert;
@@ -19,18 +20,18 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class DatabaseConfigurationServiceTest {
+public class DatabaseConfigurationDAOTest {
 
 	@Autowired
 	private CustomerService customerService;
 
 	@Autowired
-	private DatabaseConfigurationService databaseConfigurationService;
+	private DatabaseConfigurationDAO databaseConfigurationDAO;
 
 	@Before
 	@After
 	public void before(){
-		databaseConfigurationService.resetDatabase();
+		databaseConfigurationDAO.resetDatabase();
 	}
 
 	@Test
@@ -39,7 +40,7 @@ public class DatabaseConfigurationServiceTest {
 		customerService.createCustomer(new CustomerEntity("Jeff", "Mark"));
 
 		Assert.assertEquals("Jeff", customerService.findByName("Jeff").get(0).getFirstName());
-		databaseConfigurationService.resetDatabase();
+		databaseConfigurationDAO.resetDatabase();
 		Assert.assertEquals(0, customerService.findByName("Jeff").size());
 
 	}

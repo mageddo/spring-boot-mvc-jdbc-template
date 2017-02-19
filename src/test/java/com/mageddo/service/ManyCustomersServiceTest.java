@@ -1,5 +1,6 @@
 package com.mageddo.service;
 
+import com.mageddo.dao.DatabaseConfigurationDAO;
 import com.mageddo.entity.CustomerEntity;
 import org.junit.After;
 import org.junit.Assert;
@@ -31,11 +32,11 @@ public class ManyCustomersServiceTest {
 	CustomerService customerService;
 
 	@Autowired
-	private DatabaseConfigurationService databaseConfigurationService;
+	private DatabaseConfigurationDAO databaseConfigurationDAO;
 
 	@After
 	public void construct() {
-		databaseConfigurationService.resetDatabase();
+		databaseConfigurationDAO.resetDatabase();
 	}
 
 	@Test
