@@ -18,7 +18,7 @@ import java.util.List;
  */
 
 @Repository
-@Profile("H2")
+@Profile("Pg")
 public class CustomerDAOPg implements CustomerDAO {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CustomerDAOPg.class);

@@ -31,11 +31,14 @@ public class PgDatabaseConfiguration {
 		LOGGER.info("status=begin");
 		jdbcTemplate.execute("DROP TABLE IF EXISTS customers ");
 		jdbcTemplate.execute("CREATE TABLE customers(" +
-			"id SERIAL primary key, first_name VARCHAR(255) UNIQUE, last_name VARCHAR(255), balance NUMBER(12, 2))");
+			"id SERIAL primary key, first_name VARCHAR(255) UNIQUE, last_name VARCHAR(255), balance DECIMAL(12, 2))");
 
 		// Split up the array of whole names into an array of first/last names
 		List<Object[]> splitUpNames = Arrays.asList("John Woo 1.99", "Jeff Dean 15.0", "Josh Bloch 35.0", "Mark Long 50.50").stream()
-			.map(name -> name.split(" "))
+			.map(name -> {
+				final String[] split = name.split(" ");
+				return new Object[]{split[0], split[1], Double.parseDouble(split[2])};
+			})
 			.collect(Collectors.toList());
 
 		// Use a Java 8 stream to print out each tuple of the list
