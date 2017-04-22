@@ -22,7 +22,7 @@ public class CustomerController {
 	@Autowired
 	ManyCustomersService manyCustomersService;
 
-	@RequestMapping(value = "/customer/{customer}",method = RequestMethod.GET)
+	@RequestMapping(value = "/customer/name/{customer}",method = RequestMethod.GET)
 	@ResponseBody
 	public List<CustomerEntity> findByName(@PathVariable("customer") String customer){
 		return customerService.findByName(customer);
@@ -38,6 +38,18 @@ public class CustomerController {
 	@ResponseBody
 	public void createCustomers(@RequestBody List<CustomerEntity> customers){
 		manyCustomersService.createCustomers(customers);
+	}
+
+	@RequestMapping(value = "/customer/{id}",method = RequestMethod.GET)
+	@ResponseBody
+	public CustomerEntity findCustomer(@PathVariable("id") long id){
+		return customerService.findCustomerByIdSerial(id);
+	}
+
+	@RequestMapping(value = "/customer/{id}/{value}",method = RequestMethod.GET)
+	@ResponseBody
+	public boolean updateBalance(@PathVariable("id") long id, @PathVariable("value") double value){
+		return customerService.updateCustomerBalanceConcurrencyProblem(id, value);
 	}
 
 }
