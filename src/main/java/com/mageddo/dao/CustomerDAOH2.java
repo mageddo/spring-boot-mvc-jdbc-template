@@ -59,7 +59,7 @@ public class CustomerDAOH2 implements CustomerDAO {
 	}
 
 	@Override
-	public boolean doCustomerBalanceTurnover(Long customerId, double turnoverValue) {
+	public boolean updateCustomerBalanceTurnoverAtDB(Long customerId, double turnoverValue) {
 		return jdbcTemplate.update(
 			String.format("UPDATE customers SET balance=balance %+.2f WHERE id = ? AND balance %+.2f >= 0.0", turnoverValue, turnoverValue),
 			customerId
@@ -73,6 +73,6 @@ public class CustomerDAOH2 implements CustomerDAO {
 
 	@Override
 	public boolean updateCustomerBalance(Long customerId, double newBalance) {
-		throw new UnsupportedOperationException();
+		return jdbcTemplate.update("UPDATE customers SET balance=? WHERE id = ?", newBalance, customerId) > 0;
 	}
 }

@@ -20,7 +20,7 @@ public interface CustomerDAO {
 	 * @param turnoverValue o valor a ser movimentado negativo ou positivo
 	 * @return se movimentou
 	 */
-	boolean doCustomerBalanceTurnover(Long customerId, double turnoverValue);
+	boolean updateCustomerBalanceTurnoverAtDB(Long customerId, double turnoverValue);
 
 	CustomerEntity findCustomerById(Long customerId);
 

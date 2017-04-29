@@ -2,6 +2,7 @@ package com.mageddo.service;
 
 import com.mageddo.dao.CustomerDAO;
 import com.mageddo.entity.CustomerEntity;
+import com.mageddo.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,16 @@ public class CustomerService {
 		customerDAO.create(customer);
 	}
 
+	public void createCustomer(CustomerEntity customer, TransactionDefinition td) {
+
+		final TransactionTemplate template = new TransactionTemplate(txManger, td);
+		template.execute(ts -> {
+			customerDAO.create(customer);
+			return null;
+		});
+
+	}
+
 	@Transactional(propagation = Propagation.REQUIRED, noRollbackFor = DuplicateKeyException.class)
 	public void createCustomerWithoutFail(CustomerEntity customer) {
 		customerDAO.create(customer);
@@ -50,15 +61,24 @@ public class CustomerService {
 		createCustomerWithoutFail(customer);
 	}
 
-	@Transactional
-	public boolean doCustomerBalanceTurnover(Long customerId, double turnoverValue) {
+	@Transactional(propagation = Propagation.REQUIRED)
+	public boolean updateCustomerBalanceTurnoverAtDB(Long customerId, double turnoverValue) {
 		LOGGER.info("status=begin, customerId={}", customerId);
-		final boolean ok = customerDAO.doCustomerBalanceTurnover(customerId, turnoverValue);
+		final boolean ok = customerDAO.updateCustomerBalanceTurnoverAtDB(customerId, turnoverValue);
 		LOGGER.info("status=success");
 		return ok;
 	}
 
-	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
+	public boolean updateCustomerBalanceTurnoverAtDBTd(Long customerId, double turnoverValue, TransactionDefinition td) {
+
+		final TransactionTemplate template = new TransactionTemplate(txManger, td);
+		return template.execute(ts -> {
+			return this.updateCustomerBalanceTurnoverAtDB(customerId, turnoverValue);
+		});
+
+	}
+
+	@Transactional(isolation = Isolation.SERIALIZABLE)
 	public boolean updateCustomerBalanceConcurrencyProblem(Long customerId, double turnoverValue) {
 		LOGGER.info("status=begin, customerId={}", customerId);
 		final CustomerEntity customer = customerDAO.findCustomerById(customerId);
@@ -71,19 +91,31 @@ public class CustomerService {
 		if(newBalance < 0.0){
 			throw new IllegalStateException("No balance available");
 		}
+		LOGGER.info("status=begin, value={}, balance={}, newBalance={}", turnoverValue, customer.getBalance(), newBalance);
 		final boolean ok = customerDAO.updateCustomerBalance(customerId, newBalance);
 		LOGGER.info("status=success, ok={}", ok);
 		return ok;
 	}
 
+	public boolean updateCustomerBalanceAtDBWithSleepTd(Long customerId, double turnoverValue, int before, int after,
+			TransactionDefinition td) throws InterruptedException {
+		return new TransactionTemplate(txManger, td).execute(ts -> {
+			return this.updateCustomerBalanceAtDBWithSleep(customerId, turnoverValue, before, after);
+		});
+	}
+
 	@Transactional
-	public boolean updateCustomerBalanceWithSleep(Long customerId, double turnoverValue, int before, int after) throws InterruptedException {
-		LOGGER.info("status=begin, customerId={}", customerId);
-		Thread.sleep(before);
-		final boolean balanceUpdate = this.doCustomerBalanceTurnover(customerId, turnoverValue);
-		Thread.sleep(after);
-		LOGGER.info("status=success");
+	public boolean updateCustomerBalanceAtDBWithSleep(Long customerId, double turnoverValue, int before, int after) {
+		Utils.sleep(before);
+		LOGGER.info("status=begin, customerId={}, turnover={}, before={}, after={}", customerId, turnoverValue, before, after);
+		final boolean balanceUpdate = this.updateCustomerBalanceTurnoverAtDB(customerId, turnoverValue);
+		Utils.sleep(after);
+		LOGGER.info("status=success, customerId={}, turnover={}", customerId, turnoverValue);
 		return balanceUpdate;
+	}
+
+	public CustomerEntity findCustomerByIdTd(Long customerId, TransactionDefinition td) {
+		return new TransactionTemplate(txManger, td).execute(ts -> this.findCustomerById(customerId));
 	}
 
 	@Transactional
@@ -96,18 +128,6 @@ public class CustomerService {
 
 	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 	public CustomerEntity findCustomerByIdSerial(Long customerId) {
-
-//		TransactionTemplate transactionTemplate = new TransactionTemplate(txManger);
-//		transactionTemplate.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
-//		LOGGER.info("status=begin, customerId={}", customerId);
-//
-//		final CustomerEntity customerById = transactionTemplate.execute(status -> {
-//			final CustomerEntity customer = customerDAO.findCustomerById(customerId);
-//			return customer;
-//		});
-//		LOGGER.info("status=success, customerId={}, value={}", customerId, customerById.getBalance());
-//		return customerById;
-
 
 		LOGGER.info("status=begin, customerId={}", customerId);
 		final CustomerEntity customerById = customerDAO.findCustomerById(customerId);

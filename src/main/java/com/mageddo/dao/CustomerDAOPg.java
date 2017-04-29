@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -37,6 +39,7 @@ public class CustomerDAOPg implements CustomerDAO {
 		return customerEntities;
 	}
 
+	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 	@Override
 	public void create(CustomerEntity customerEntity) {
 
@@ -59,7 +62,7 @@ public class CustomerDAOPg implements CustomerDAO {
 	}
 
 	@Override
-	public boolean doCustomerBalanceTurnover(Long customerId, double turnoverValue) {
+	public boolean updateCustomerBalanceTurnoverAtDB(Long customerId, double turnoverValue) {
 		return jdbcTemplate.update(
 			String.format("UPDATE customers SET balance=balance %+.2f WHERE id = ? AND balance %+.2f >= 0.0", turnoverValue, turnoverValue),
 			customerId

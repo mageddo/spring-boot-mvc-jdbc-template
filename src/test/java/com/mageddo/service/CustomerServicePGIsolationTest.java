@@ -2,14 +2,18 @@ package com.mageddo.service;
 
 import com.mageddo.dao.DatabaseConfigurationDAO;
 import com.mageddo.entity.CustomerEntity;
+import com.mageddo.utils.DefaultTransactionDefinition;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import static org.springframework.transaction.TransactionDefinition.ISOLATION_READ_COMMITTED;
+import static org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRED;
 
 /**
  * @author elvis
@@ -19,7 +23,8 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class CustomerServiceTest {
+@ActiveProfiles({"Pg"})
+public class CustomerServicePGIsolationTest {
 
 
 	@Autowired
@@ -44,9 +49,9 @@ public class CustomerServiceTest {
 		final CustomerEntity customer = new CustomerEntity("Mary", "Santos");
 		customerService.createCustomer(customer);
 
-		customerService.doCustomerBalanceTurnover(customer.getId(), 50);
+		customerService.updateCustomerBalanceTurnoverAtDB(customer.getId(), 50);
 		Assert.assertEquals((Double)50D, customerService.findCustomerById(customer.getId()).getBalance());
-		customerService.doCustomerBalanceTurnover(customer.getId(), -3.00);
+		customerService.updateCustomerBalanceTurnoverAtDB(customer.getId(), -3.00);
 		Assert.assertEquals((Double)47.0, customerService.findCustomerById(customer.getId()).getBalance());
 
 	}
@@ -62,28 +67,29 @@ public class CustomerServiceTest {
 	public void updateCustomerBalanceConcurrency() throws Exception {
 
 		final CustomerEntity customer = new CustomerEntity("Mary", "Santos");
-		customerService.createCustomer(customer);
-		customerService.doCustomerBalanceTurnover(customer.getId(), 50);
+		final DefaultTransactionDefinition td = new DefaultTransactionDefinition(PROPAGATION_REQUIRED, ISOLATION_READ_COMMITTED);
+		customerService.createCustomer(customer, td);
+		customerService.updateCustomerBalanceTurnoverAtDBTd(customer.getId(), 50, td);
 
 		final Thread t1 = new Thread(() -> {
 			try {
-				boolean ok = customerService.updateCustomerBalanceWithSleep(customer.getId(), -50, 0, 3000);
+				boolean ok = customerService.updateCustomerBalanceAtDBWithSleepTd(customer.getId(), -50, 0, 3000, td);
 				Assert.assertTrue("", ok);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		});
 		t1.start();
+
 		Thread.sleep(1000);
 
 		Assert.assertEquals(new Double(50.0), customerService.findCustomerById(customer.getId()).getBalance());
 
 		// Não consegue sacar pois a transação anterior tirou todo o dinheiro
-		// perceba que a consulta anterior pegou o valor errado mas o saque nao falhar por ser todo feito me base
-		final boolean ok = customerService.doCustomerBalanceTurnover(customer.getId(), -3.00);
+		// perceba que a consulta anterior pegou o valor errado mas o saque nao falha por ser todo feito me base
+		final boolean ok = customerService.updateCustomerBalanceTurnoverAtDB(customer.getId(), -3.00);
 		Assert.assertFalse(ok);
 
-		t1.join();
 		Assert.assertEquals(new Double(0.0), customerService.findCustomerById(customer.getId()).getBalance());
 
 	}
@@ -100,7 +106,7 @@ public class CustomerServiceTest {
 
 		final CustomerEntity customer = new CustomerEntity("Mary", "Santos");
 		customerService.createCustomer(customer);
-		customerService.doCustomerBalanceTurnover(customer.getId(), 50);
+		customerService.updateCustomerBalanceTurnoverAtDB(customer.getId(), 50);
 
 		final Thread t1 = new Thread(() -> {
 			try {
@@ -127,7 +133,7 @@ public class CustomerServiceTest {
 
 		final CustomerEntity customer = new CustomerEntity("Mary", "Santos");
 		customerService.createCustomer(customer);
-		customerService.doCustomerBalanceTurnover(customer.getId(), 50);
+		customerService.updateCustomerBalanceTurnoverAtDB(customer.getId(), 50);
 
 		final Thread t1 = new Thread(() -> {
 			try {
