@@ -63,7 +63,7 @@ public class CustomerService {
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	public boolean updateCustomerBalanceTurnoverAtDB(Long customerId, double turnoverValue) {
-		LOGGER.info("status=begin, customerId={}", customerId);
+		LOGGER.info("status=begin, customerId={}, turnoverValue={}", customerId, turnoverValue);
 		final boolean ok = customerDAO.updateCustomerBalanceTurnoverAtDB(customerId, turnoverValue);
 		LOGGER.info("status=success");
 		return ok;
@@ -114,11 +114,11 @@ public class CustomerService {
 		return balanceUpdate;
 	}
 
-	public CustomerEntity findCustomerByIdTd(Long customerId, TransactionDefinition td) {
+	public CustomerEntity findCustomerById(Long customerId, TransactionDefinition td) {
 		return new TransactionTemplate(txManger, td).execute(ts -> this.findCustomerById(customerId));
 	}
 
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRED)
 	public CustomerEntity findCustomerById(Long customerId) {
 		LOGGER.info("status=begin, customerId={}", customerId);
 		final CustomerEntity customerById = customerDAO.findCustomerById(customerId);

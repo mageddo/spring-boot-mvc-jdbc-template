@@ -35,7 +35,7 @@ public class CustomerDAOPg implements CustomerDAO {
 			"SELECT id, first_name, last_name, balance FROM customers WHERE CONCAT(first_name, ' ', last_name) LIKE ? ORDER BY id ASC",
 			new Object[]{"%" + name + "%"}, CustomerEntity.mapper()
 		);
-		LOGGER.info("status=success");
+		LOGGER.info("status=success, size={}", customerEntities.size());
 		return customerEntities;
 	}
 

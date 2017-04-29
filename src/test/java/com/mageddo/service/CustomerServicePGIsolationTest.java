@@ -1,8 +1,10 @@
 package com.mageddo.service;
 
+import com.mageddo.dao.CustomerDAO;
 import com.mageddo.dao.DatabaseConfigurationDAO;
 import com.mageddo.entity.CustomerEntity;
 import com.mageddo.utils.DefaultTransactionDefinition;
+import com.mageddo.utils.Utils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -11,9 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
-import static org.springframework.transaction.TransactionDefinition.ISOLATION_READ_COMMITTED;
-import static org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRED;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.springframework.transaction.TransactionDefinition.*;
 
 /**
  * @author elvis
@@ -32,6 +38,12 @@ public class CustomerServicePGIsolationTest {
 
 	@Autowired
 	private DatabaseConfigurationDAO databaseConfigurationDAO;
+
+	@Autowired
+	private CustomerDAO customerDAO;
+
+	@Autowired
+	private PlatformTransactionManager txManager;
 
 	@After
 	public void reset(){
@@ -93,6 +105,79 @@ public class CustomerServicePGIsolationTest {
 		Assert.assertEquals(new Double(0.0), customerService.findCustomerById(customer.getId()).getBalance());
 
 	}
+
+
+	@Test
+	public void updateCustomerBalanceConcurrencySerializable() throws Exception {
+
+		final CustomerEntity customer = new CustomerEntity("Mary", "Santos");
+
+		final DefaultTransactionDefinition tdSerializable = new DefaultTransactionDefinition(PROPAGATION_REQUIRED, ISOLATION_SERIALIZABLE);
+		customerService.createCustomer(customer, tdSerializable);
+		customerService.updateCustomerBalanceTurnoverAtDBTd(customer.getId(), 50, tdSerializable);
+
+		final Thread t1 = new Thread(() -> {
+			try {
+				boolean ok = customerService.updateCustomerBalanceAtDBWithSleepTd(customer.getId(), -50, 0, 5000, tdSerializable);
+				Assert.assertTrue("", ok);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
+		t1.start();
+
+		Thread.sleep(1000);
+
+		Assert.assertEquals(new Double(50.0), customerService.findCustomerById(customer.getId(), tdSerializable).getBalance());
+
+		// Não consegue sacar pois a transação anterior tirou todo o dinheiro
+		// perceba que a consulta anterior pegou o valor errado mas o saque nao falha por ser todo feito me base
+		final boolean ok = customerService.updateCustomerBalanceTurnoverAtDB(customer.getId(), -3.00);
+		Assert.assertFalse(ok);
+
+		Assert.assertEquals(new Double(0.0), customerService.findCustomerById(customer.getId()).getBalance());
+
+	}
+
+	/**
+	 * Teste mostra como a transação não consegue ver os dados inseridos e comitados por outras quando está sobre a repeatable read
+	 * @throws Exception
+	 */
+	@Test
+	public void updateCustomerBalanceConcurrencyRepeatableRead() throws Exception {
+
+		final AtomicBoolean terminated = new AtomicBoolean(false);
+		final DefaultTransactionDefinition td = new DefaultTransactionDefinition(PROPAGATION_REQUIRED, ISOLATION_REPEATABLE_READ);
+
+		final Thread t1 = new Thread(() -> {
+
+			new TransactionTemplate(txManager, td).execute(ts -> {
+
+				for(;!terminated.get();){
+
+						final List<CustomerEntity> result = customerDAO.findByName("Mary");
+						Assert.assertTrue(result.isEmpty());
+						Utils.sleep(500);
+
+					}
+					return null;
+
+				});
+		});
+		t1.start();
+
+		final CustomerEntity customer = new CustomerEntity("Mary", "Santos");
+		customerService.createCustomer(customer, td);
+
+		Utils.sleep(3000);
+
+		final List<CustomerEntity> result = customerService.findByName("Mary");
+		Assert.assertEquals("Mary", result.get(0).getFirstName());
+		terminated.set(true);
+		t1.join();
+
+	}
+
 
 
 	/**
