@@ -42,7 +42,7 @@ public class CustomerDAOPg implements CustomerDAO {
 	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 	@Override
 	public void create(CustomerEntity customerEntity) {
-
+		LOGGER.info("status=begin, name={}", customerEntity.getFirstName());
 		final KeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbcTemplate.update(con -> {
 			final PreparedStatement st = con.prepareStatement(
@@ -53,6 +53,7 @@ public class CustomerDAOPg implements CustomerDAO {
 			return st;
 		}, keyHolder);
 		customerEntity.setId(keyHolder.getKey().longValue());
+		LOGGER.info("status=begin, name={}, id={}", customerEntity.getFirstName(), customerEntity.getId());
 	}
 
 	@Override

@@ -32,8 +32,14 @@ public class CustomerService {
 	@Autowired
 	private PlatformTransactionManager txManger;
 
+	@Transactional(isolation = Isolation.READ_COMMITTED)
 	public List<CustomerEntity> findByName(String name){
 		return this.customerDAO.findByName(name);
+	}
+
+	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
+	public List<CustomerEntity> findByName(String name, TransactionDefinition td){
+		return new TransactionTemplate(txManger, td).execute( ts -> this.findByName(name) );
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
@@ -76,6 +82,21 @@ public class CustomerService {
 			return this.updateCustomerBalanceTurnoverAtDB(customerId, turnoverValue);
 		});
 
+	}
+
+	public boolean updateCustomerBalanceConcurrencyProblem(Long customerId, double turnoverValue, TransactionDefinition td) {
+		return new TransactionTemplate(txManger, td).execute( ts ->
+			this.updateCustomerBalanceConcurrencyProblem(customerId, turnoverValue)
+		);
+	}
+
+	public boolean updateCustomerBalanceConcurrencyProblemWithSleep(Long customerId, double turnoverValue, int before, int after, TransactionDefinition td) {
+		return new TransactionTemplate(txManger, td).execute( ts -> {
+				Utils.sleep(before);
+			final boolean r = this.updateCustomerBalanceConcurrencyProblem(customerId, turnoverValue);
+			Utils.sleep(after);
+				return r;
+			});
 	}
 
 	@Transactional(isolation = Isolation.SERIALIZABLE)

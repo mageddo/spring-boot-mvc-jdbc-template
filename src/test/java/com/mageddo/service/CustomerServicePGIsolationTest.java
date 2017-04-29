@@ -11,11 +11,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.CannotSerializeTransactionException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -108,7 +110,7 @@ public class CustomerServicePGIsolationTest {
 
 
 	@Test
-	public void updateCustomerBalanceConcurrencySerializable() throws Exception {
+	public void updateCustomerBalanceConcurrencySerializableWithoutException() throws Exception {
 
 		final CustomerEntity customer = new CustomerEntity("Mary", "Santos");
 
@@ -130,12 +132,40 @@ public class CustomerServicePGIsolationTest {
 
 		Assert.assertEquals(new Double(50.0), customerService.findCustomerById(customer.getId(), tdSerializable).getBalance());
 
-		// Não consegue sacar pois a transação anterior tirou todo o dinheiro
-		// perceba que a consulta anterior pegou o valor errado mas o saque nao falha por ser todo feito me base
+		// mesmo sendo serializable nao recebe problema de concorrencia
+		// pois o update é feito via variaveis de banco(nao eh feito nenhum set)
+		// assim simplesmente o update falha
 		final boolean ok = customerService.updateCustomerBalanceTurnoverAtDB(customer.getId(), -3.00);
 		Assert.assertFalse(ok);
 
 		Assert.assertEquals(new Double(0.0), customerService.findCustomerById(customer.getId()).getBalance());
+
+	}
+
+	@Test(expected = CannotSerializeTransactionException.class)
+	public void updateCustomerBalanceConcurrencySerializable() throws Exception {
+
+		final CustomerEntity customer = new CustomerEntity("Mary", "Santos");
+
+		final DefaultTransactionDefinition tdSerializable = new DefaultTransactionDefinition(PROPAGATION_REQUIRED, ISOLATION_SERIALIZABLE);
+		customerService.createCustomer(customer, tdSerializable);
+		customerService.updateCustomerBalanceTurnoverAtDB(customer.getId(), 50);
+
+		final Thread t1 = new Thread(() -> {
+			boolean ok = customerService.updateCustomerBalanceConcurrencyProblemWithSleep(
+				customer.getId(), -50,0, 5000, tdSerializable
+			);
+			Assert.assertTrue("", ok);
+		});
+		t1.start();
+
+		Thread.sleep(1000);
+
+		Assert.assertEquals(new Double(50.0), customerService.findCustomerById(customer.getId(), tdSerializable).getBalance());
+
+		// Recebe falha de concorrencia pois a transacao na thread secundaria ainda está rodando
+		customerService.updateCustomerBalanceConcurrencyProblem(customer.getId(), -3.00);
+
 
 	}
 
@@ -178,66 +208,44 @@ public class CustomerServicePGIsolationTest {
 
 	}
 
-
-
 	/**
-	 * 2o caso classico de concorrencia em que o saque é feito no código, não tendo a integridade garantida
-	 * pois os isolamentos estão em READ_COMMITED, o saque além de deixar tirar todo o saldo do cliente, no segundo saque
-	 * deixa tirar denovo e ainda o deixa com saldo positivo
+		* Teste mostra que o READ UNCOMMITTED nao funciona no postgres agindo como se fosse read committed
 	 * @throws Exception
 	 */
 	@Test
-	public void updateCustomerBalanceConcurrencyProblem() throws Exception {
+	public void updateCustomerBalanceConcurrencyReadUncommitted() throws Exception {
 
-		final CustomerEntity customer = new CustomerEntity("Mary", "Santos");
-		customerService.createCustomer(customer);
-		customerService.updateCustomerBalanceTurnoverAtDB(customer.getId(), 50);
+		final AtomicBoolean terminated = new AtomicBoolean(false);
+		final DefaultTransactionDefinition td = new DefaultTransactionDefinition(PROPAGATION_REQUIRED, ISOLATION_READ_UNCOMMITTED);
 
 		final Thread t1 = new Thread(() -> {
-			try {
-				boolean ok = customerService.updateCustomerBalanceConcurrencyProblemWithSleep(customer.getId(), -50, 0, 3000);
-				Assert.assertTrue("", ok);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+
+			new TransactionTemplate(txManager, td).execute(ts -> {
+
+					customerDAO.create(new CustomerEntity("Elvis", new Date().toString()));
+				for(;!terminated.get();){
+					Utils.sleep(500);
+				}
+				return null;
+
+			});
 		});
 		t1.start();
-		Thread.sleep(1000);
-		Assert.assertEquals(new Double(50.0), customerService.findCustomerById(customer.getId()).getBalance());
 
-		final boolean ok = customerService.updateCustomerBalanceConcurrencyProblem(customer.getId(), -3.00);
-		Assert.assertTrue("Devia ter atualizado mesmo sem saldo devido ao problema de concorrencia", ok);
+		Utils.sleep(3000);
 
+		final List<CustomerEntity> result = customerService.findByName("Elvis", td);
+		Assert.assertTrue(result.isEmpty());
+
+		final List<CustomerEntity> result2 = customerService.findByName("Elvis");
+		Assert.assertTrue(result2.isEmpty());
+		terminated.set(true);
 		t1.join();
-		Assert.assertEquals(new Double(47.0), customerService.findCustomerById(customer.getId()).getBalance());
+
 
 	}
 
-	@Test
-	public void updateCustomerBalanceConcurrencyProblemFix() throws Exception {
 
-		final CustomerEntity customer = new CustomerEntity("Mary", "Santos");
-		customerService.createCustomer(customer);
-		customerService.updateCustomerBalanceTurnoverAtDB(customer.getId(), 50);
 
-		final Thread t1 = new Thread(() -> {
-			try {
-				boolean ok = customerService.updateCustomerBalanceConcurrencyProblemWithSleep(customer.getId(), -50, 0, 3000);
-				Assert.assertTrue("", ok);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		});
-		t1.start();
-		Thread.sleep(1000);
-		Assert.assertEquals(new Double(50.0), customerService.findCustomerByIdSerial(customer.getId()).getBalance());
-
-		final boolean ok = customerService.updateCustomerBalanceConcurrencyProblem(customer.getId(), -3.00);
-		Assert.assertTrue("Devia ter atualizado mesmo sem saldo devido ao problema de concorrencia", ok);
-
-		t1.join();
-		Assert.assertEquals(new Double(47.0), customerService.findCustomerById(customer.getId()).getBalance());
-
-	}
 
 }
