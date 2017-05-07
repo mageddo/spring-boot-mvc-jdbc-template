@@ -9,6 +9,11 @@ public class SpringUtils {
 
 	private static Environment instance;
 
+	/**
+	 * Load spring properties based on active profiles
+	 * @param args
+	 * @return
+	 */
 	public static boolean prepareEnv(String[] args){
 		if (instance == null) {
 			instance = new SpringEnv(args).getEnv();
