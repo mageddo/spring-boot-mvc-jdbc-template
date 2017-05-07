@@ -52,16 +52,18 @@ public class Application {
 
         try {
             Properties properties;
-            properties = loadProfileProperties("");
+            String propertiesName = getPropertiesName("");
+            properties = loadProfileProperties(propertiesName);
             if (properties != null){
-                propertySources.addLast(new PropertiesPropertySource("default", properties));
+                propertySources.addLast(new PropertiesPropertySource(propertiesName, properties));
             }
             final String activeProfiles = env.getProperty("spring-profiles-active");
             for ( final String profile : activeProfiles.split(", ?") ){
 
-                properties = loadProfileProperties(profile);
+                propertiesName = getPropertiesName(profile);
+                properties = loadProfileProperties(propertiesName);
                 if (properties != null){
-                    propertySources.addLast(new PropertiesPropertySource(profile, properties));
+                    propertySources.addLast(new PropertiesPropertySource(propertiesName, properties));
                 }
             }
         } catch (IOException e) {
@@ -82,11 +84,11 @@ public class Application {
 //        BeanFactoryUtils.beanOfTypeIncludingAncestors()
     }
 
-    private static Properties loadProfileProperties(String profileName) throws IOException {
+    private static Properties loadProfileProperties(String propertiesName) throws IOException {
 
         final InputStream profileIn = ClassUtils
           .getDefaultClassLoader()
-          .getResourceAsStream(getPropertiesName(profileName));
+          .getResourceAsStream(propertiesName);
 
         if (profileIn == null){
             return null;
