@@ -48,52 +48,25 @@ public class Application {
             }
         };
         env.merge(commandLine);
+        final MutablePropertySources propertySources = env.getPropertySources();
 
-        final AbstractEnvironment profile = new AbstractEnvironment(){
-            @Override
-            protected void customizePropertySources(MutablePropertySources propertySources) {
-                super.customizePropertySources(propertySources);
+        try {
+            Properties properties;
+            properties = loadProfileProperties("");
+            if (properties != null){
+                propertySources.addLast(new PropertiesPropertySource("default", properties));
+            }
+            final String activeProfiles = env.getProperty("spring-profiles-active");
+            for ( final String profile : activeProfiles.split(", ?") ){
 
-                try {
-                    Properties properties;
-                    properties = loadProfileProperties("");
-                    if (properties != null){
-                        propertySources.addLast(new PropertiesPropertySource("default", properties));
-                    }
-                    final String activeProfiles = env.getProperty("spring-profiles-active");
-                    for ( final String profile : activeProfiles.split(",") ){
-
-                        properties = loadProfileProperties(profile);
-                        if (properties != null){
-                            propertySources.addLast(new PropertiesPropertySource(profile, properties));
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                properties = loadProfileProperties(profile);
+                if (properties != null){
+                    propertySources.addLast(new PropertiesPropertySource(profile, properties));
                 }
             }
-
-            private Properties loadProfileProperties(String profileName) throws IOException {
-
-                final InputStream profileIn = ClassUtils
-                    .getDefaultClassLoader()
-                    .getResourceAsStream(getPropertiesName(profileName));
-
-                if (profileIn == null){
-                    return null;
-                }
-                final Properties properties = new Properties();
-                properties.load(profileIn);
-                return properties;
-            }
-
-            private String getPropertiesName(String profileName) {
-                return "application" + (StringUtils.isEmpty(profileName) ? "" : "-" + profileName) + ".properties";
-            }
-        };
-        env.merge(profile);
-
-
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         template.execute(ts -> {
            return DBUtils.getTemplate().queryForList("SELECT 1 FROM DUAL");
@@ -107,6 +80,24 @@ public class Application {
 //        new BeanFactoryDataSourceLookup()
 //        serviceLoaderFactoryBean.
 //        BeanFactoryUtils.beanOfTypeIncludingAncestors()
+    }
+
+    private static Properties loadProfileProperties(String profileName) throws IOException {
+
+        final InputStream profileIn = ClassUtils
+          .getDefaultClassLoader()
+          .getResourceAsStream(getPropertiesName(profileName));
+
+        if (profileIn == null){
+            return null;
+        }
+        final Properties properties = new Properties();
+        properties.load(profileIn);
+        return properties;
+    }
+
+    private static String getPropertiesName(String profileName) {
+        return "application" + (StringUtils.isEmpty(profileName) ? "" : "-" + profileName) + ".properties";
     }
 
 
