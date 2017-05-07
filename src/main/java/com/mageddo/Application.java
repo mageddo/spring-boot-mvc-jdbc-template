@@ -1,28 +1,21 @@
 package com.mageddo;
 
-import com.mageddo.utils.DBUtils;
-import com.mageddo.utils.DefaultTransactionDefinition;
 import com.mageddo.utils.SpringUtils;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.support.TransactionTemplate;
+import org.apache.catalina.LifecycleException;
+import org.apache.catalina.startup.Tomcat;
+import org.springframework.core.env.Environment;
 
 public class Application {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws LifecycleException {
 
 		SpringUtils.prepareEnv(args);
 
-		final TransactionTemplate template = new TransactionTemplate(
-			DBUtils.getTx(),
-			new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRED, TransactionDefinition.ISOLATION_DEFAULT)
-		);
-
-		template.execute(ts -> {
-			return DBUtils.getTemplate().queryForList("SELECT 1 FROM DUAL");
-		});
-
+		final Environment env = SpringUtils.getEnv();
+		final Tomcat servletContainer = new Tomcat();
+//		servletContainer.addContext(env.getProperty("server.context-path"), "webapp");
+		servletContainer.setPort(Integer.parseInt(env.getProperty("server.port")));
+		servletContainer.start();
+		servletContainer.getServer().await();
 	}
-
-
-
 }

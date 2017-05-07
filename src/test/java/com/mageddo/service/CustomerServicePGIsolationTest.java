@@ -83,7 +83,7 @@ public class CustomerServicePGIsolationTest {
 		final CustomerEntity customer = new CustomerEntity("Mary", "Santos");
 		final DefaultTransactionDefinition td = new DefaultTransactionDefinition(PROPAGATION_REQUIRED, ISOLATION_READ_COMMITTED);
 		customerService.createCustomer(customer, td);
-		customerService.updateCustomerBalanceTurnoverAtDBTd(customer.getId(), 50, td);
+		customerService.updateCustomerBalanceTurnoverAtDB(customer.getId(), 50, td);
 
 		final Thread t1 = new Thread(() -> {
 			try {
@@ -116,7 +116,7 @@ public class CustomerServicePGIsolationTest {
 
 		final DefaultTransactionDefinition tdSerializable = new DefaultTransactionDefinition(PROPAGATION_REQUIRED, ISOLATION_SERIALIZABLE);
 		customerService.createCustomer(customer, tdSerializable);
-		customerService.updateCustomerBalanceTurnoverAtDBTd(customer.getId(), 50, tdSerializable);
+		customerService.updateCustomerBalanceTurnoverAtDB(customer.getId(), 50, tdSerializable);
 
 		final Thread t1 = new Thread(() -> {
 			try {

@@ -4,10 +4,10 @@ import com.mageddo.dao.CustomerDAO;
 import com.mageddo.dao.CustomerDAOH2;
 import com.mageddo.entity.CustomerEntity;
 import com.mageddo.utils.DBUtils;
+import com.mageddo.utils.DefaultTransactionDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
@@ -22,13 +22,14 @@ public class CustomerService {
 	private CustomerDAO customerDAO = new CustomerDAOH2();
 	private PlatformTransactionManager txManger = DBUtils.getTx();
 
-	public List<CustomerEntity> findByName(final String name, TransactionDefinition td){
-		return new TransactionTemplate(txManger, td).execute( ts -> this.customerDAO.findByName(name) );
+	public List<CustomerEntity> findByName(final String name){
+		return new TransactionTemplate(txManger, new DefaultTransactionDefinition())
+				.execute(ts -> this.customerDAO.findByName(name) );
 	}
 
-	public void createCustomer(CustomerEntity customer, TransactionDefinition td) {
+	public void createCustomer(CustomerEntity customer) {
 
-		final TransactionTemplate template = new TransactionTemplate(txManger, td);
+		final TransactionTemplate template = new TransactionTemplate(txManger, new DefaultTransactionDefinition());
 		template.execute(ts -> {
 			customerDAO.create(customer);
 			return null;
@@ -36,9 +37,9 @@ public class CustomerService {
 
 	}
 
-	public boolean updateCustomerBalanceTurnoverAtDBTd(Long customerId, double turnoverValue, TransactionDefinition td) {
+	public boolean updateCustomerBalanceTurnoverAtDB(Long customerId, double turnoverValue) {
 
-		final TransactionTemplate template = new TransactionTemplate(txManger, td);
+		final TransactionTemplate template = new TransactionTemplate(txManger, new DefaultTransactionDefinition());
 		return template.execute(ts -> {
 			return customerDAO.updateCustomerBalanceTurnoverAtDB(customerId, turnoverValue);
 		});

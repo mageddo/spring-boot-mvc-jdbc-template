@@ -5,6 +5,9 @@ package com.mageddo.utils;
  */
 public class DefaultTransactionDefinition  extends org.springframework.transaction.support.DefaultTransactionDefinition {
 
+	public DefaultTransactionDefinition() {
+		this(PROPAGATION_REQUIRED, ISOLATION_READ_COMMITTED);
+	}
 	public DefaultTransactionDefinition(int propagation, int isolation) {
 		setPropagationBehavior(propagation);
 		setIsolationLevel(isolation);
