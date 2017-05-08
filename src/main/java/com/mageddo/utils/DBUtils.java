@@ -18,7 +18,7 @@ import java.util.Properties;
 public class DBUtils {
 
 	private static final DataSourceTransactionManager manager;
-	private static final DataSource datasource;
+	private static  DataSource datasource;
 	private static final JdbcTemplate template;
 
 	static {
@@ -29,16 +29,18 @@ public class DBUtils {
 		final Properties connProp = new Properties();
 		connProp.setProperty("username", "sa");
 		connProp.setProperty("password", "");
+		connProp.setProperty("url", "jdbc:h2:tcp://h2.dev:9092/h2/data");
+		connProp.setProperty("driverClassName", "org.h2.Driver");
 
-		datasource = new SimpleDriverDataSource(new Driver(), "jdbc:h2:mem:test", connProp);
+//		datasource = new SimpleDriverDataSource(new Driver(), "jdbc:h2:tcp://h2.dev:9092/h2/data", connProp);
+//		datasource = new SimpleDriverDataSource(new Driver(), "jdbc:h2:mem:test", connProp);
 
-//		final org.apache.tomcat.jdbc.pool.DataSourceFactory sourceFactory = new org.apache.tomcat.jdbc.pool.DataSourceFactory();
-//		connProp
-//		try {
-//			sourceFactory.createDataSource(connProp);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
+		final org.apache.tomcat.jdbc.pool.DataSourceFactory sourceFactory = new org.apache.tomcat.jdbc.pool.DataSourceFactory();
+		try {
+			datasource = sourceFactory.createDataSource(connProp);
+		} catch (Exception e) {
+			throw new RuntimeException("Can not create pool", e);
+		}
 
 		manager = new DataSourceTransactionManager(datasource);
 		template = new JdbcTemplate(datasource);
