@@ -29,7 +29,7 @@ public class DBUtils {
 		final Properties connProp = new Properties();
 		connProp.setProperty("username", "sa");
 		connProp.setProperty("password", "");
-		connProp.setProperty("url", "jdbc:h2:tcp://h2.dev:9092/h2/data");
+		connProp.setProperty("url", "jdbc:h2:mem:test");
 		connProp.setProperty("driverClassName", "org.h2.Driver");
 
 //		datasource = new SimpleDriverDataSource(new Driver(), "jdbc:h2:tcp://h2.dev:9092/h2/data", connProp);
