@@ -52,6 +52,8 @@ dependencies {
 
 	compile group: 'org.springframework', name: 'spring-jdbc', version: springVersion
 	compile group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '8.5.14'
+	compile group: 'org.apache.tomcat.embed', name: 'tomcat-embed-jasper', version: '8.5.14'
+
 	compile group: 'org.apache.tomcat', name: 'tomcat-jdbc', version: '8.5.14'
 	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.5.4'
 

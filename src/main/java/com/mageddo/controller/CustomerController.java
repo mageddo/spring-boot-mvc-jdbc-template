@@ -3,9 +3,6 @@ package com.mageddo.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mageddo.entity.CustomerEntity;
 import com.mageddo.service.CustomerService;
-import com.mageddo.service.ManyCustomersService;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,7 +15,7 @@ import java.io.IOException;
  * Created by elvis on 13/08/16.
  */
 
-@WebServlet("/customer")
+@WebServlet(urlPatterns = "/customer")
 public class CustomerController extends HttpServlet {
 
 	private CustomerService customerService = new CustomerService();
@@ -50,6 +47,5 @@ public class CustomerController extends HttpServlet {
 			resp.getWriter().println("Failed to update customer balance: " + e.getMessage());
 		}
 	}
-
 
 }
