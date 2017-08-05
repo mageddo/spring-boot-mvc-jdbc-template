@@ -20,10 +20,13 @@ repositories {
 }
 
 apply plugin: 'java'
-apply plugin: 'org.springframework.boot'
+apply plugin: 'maven'
 apply plugin: 'com.mageddo.gradle-embed-maven-repo'
+
 sourceCompatibility = 1.8
 
+group 'com.mageddo'
+version '1.0.0'
 
 configurations {
 	provided
