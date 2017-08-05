@@ -23,7 +23,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'com.mageddo.gradle-embed-maven-repo'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 1.5
 
 group 'com.mageddo'
 version '1.0.0'
