@@ -30,8 +30,10 @@ public class SpringEnv {
 			addPropertySource(propertySources, "");
 
 			final String activeProfiles = env.getProperty("spring-profiles-active");
-			for (final String profile : activeProfiles.split(", ?")) {
-				addPropertySource(propertySources, profile);
+			if(activeProfiles != null && !activeProfiles.trim().isEmpty()){
+				for (final String profile : activeProfiles.split(", ?")) {
+					addPropertySource(propertySources, profile);
+				}
 			}
 			LOGGER.info("status=success");
 		} catch (IOException e) {
