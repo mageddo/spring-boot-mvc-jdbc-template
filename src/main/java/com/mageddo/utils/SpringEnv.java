@@ -1,27 +1,32 @@
 package com.mageddo.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.env.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertiesPropertySource;
+import org.springframework.core.env.SimpleCommandLinePropertySource;
+import org.springframework.core.env.StandardEnvironment;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * Created by elvis on 07/05/17.
  */
 public class SpringEnv {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SpringUtils.class);
+	private static final Log LOGGER = LogFactory.getLog(SpringUtils.class);
 
 	private final StandardEnvironment env;
 
 	public SpringEnv(final String[] args) {
 
-		LOGGER.info("status=begin, args={}", args);
+		LOGGER.debug("status=begin, args=" + Arrays.toString(args));
 		env = new StandardEnvironment();
 
 		try {
@@ -35,9 +40,9 @@ public class SpringEnv {
 					addPropertySource(propertySources, profile);
 				}
 			}
-			LOGGER.info("status=success");
+			LOGGER.debug("status=success");
 		} catch (IOException e) {
-			LOGGER.error("status=fail-load-profile, msg={}", e.getMessage(), e);
+			LOGGER.error("status=fail-load-profile, msg=" + e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -47,13 +52,13 @@ public class SpringEnv {
 	}
 
 	private void addPropertySource(MutablePropertySources propertySources, String profileName) throws IOException {
-		LOGGER.info("status=begin, profile={}", profileName);
+		LOGGER.debug("status=begin, profile=" + profileName);
 		final String propertiesName = getPropertiesName(profileName);
 		final Properties properties = loadProfileProperties(propertiesName);
 		if (properties != null) {
-			propertySources.addLast(new PropertiesPropertySource(propertiesName, properties));
+			propertySources.addFirst(new PropertiesPropertySource(propertiesName, properties)); ;
 		}
-		LOGGER.info("status=begin, profile={}, properties={}", profileName, propertiesName);
+		LOGGER.debug("status=begin, profile="+ profileName +", properties=" + propertiesName);
 	}
 
 	private Properties loadProfileProperties(String propertiesName) throws IOException {

@@ -20,7 +20,7 @@ public class SpringProfileTest {
 
 	}
 
-//	@Test
+	@Test
 	public void prodProfileTest(){
 
 		final Environment env = new SpringEnv(new String[]{"--spring-profiles-active=prod"}).getEnv();
